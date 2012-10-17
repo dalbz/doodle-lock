@@ -43,7 +43,7 @@
             android:layout_height="wrap_content"
 
             android:maxLength="40"
-            android:singleLine="true" />
+            android:singleLine="true" android:inputType="text"/>
 
     </LinearLayout>
     

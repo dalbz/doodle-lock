@@ -91,7 +91,7 @@ public class GestureBuilderActivity extends ListActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.gestures_list);
+        this.setContentView(R.layout.users_list);
 
         mAdapter = new GesturesAdapter(this);
         setListAdapter(mAdapter);
@@ -100,9 +100,9 @@ public class GestureBuilderActivity extends ListActivity {
             sStore = GestureLibraries.fromFile(mStoreFile);
         }
         mEmpty = (TextView) findViewById(android.R.id.empty);
-        loadGestures();
+        this.loadGestures();
 
-        registerForContextMenu(getListView());
+        this.registerForContextMenu(getListView());
     }
 
     static GestureLibrary getStore() {
