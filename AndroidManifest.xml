@@ -38,7 +38,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="edu.osu.cse.doodleLock.CreateGestureActivity"
+            android:name=".CreateDoodleActivity"
             android:label="@string/label_create_gesture" />
     </application>
 

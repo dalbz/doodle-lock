@@ -116,7 +116,7 @@ public class GestureBuilderActivity extends ListActivity {
     
     @SuppressWarnings({"UnusedDeclaration"})
     public void addGesture(View v) {
-        Intent intent = new Intent(this, CreateGestureActivity.class);
+        Intent intent = new Intent(this, CreateDoodleActivity.class);
         startActivityForResult(intent, REQUEST_NEW_GESTURE);
     }
 

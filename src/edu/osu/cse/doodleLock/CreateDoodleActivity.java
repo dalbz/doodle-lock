@@ -31,7 +31,7 @@ import java.io.File;
 
 import edu.osu.cse.doodleLock.R;
 
-public class CreateGestureActivity extends Activity {
+public class CreateDoodleActivity extends Activity {
     private static final float LENGTH_THRESHOLD = 120.0f;
 
     private Gesture mGesture;
