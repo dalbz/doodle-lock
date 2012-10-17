@@ -332,7 +332,6 @@ out:        for (String name : entries) {
             mThumbnailSize = (int) resources.getDimension(R.dimen.gesture_thumbnail_size);
 
             findViewById(R.id.addButton).setEnabled(false);
-            findViewById(R.id.reloadButton).setEnabled(false);
             
             mAdapter.setNotifyOnChange(false);            
             mAdapter.clear();
@@ -395,7 +394,6 @@ out:        for (String name : entries) {
                         mStoreFile.getAbsolutePath()));
             } else {
                 findViewById(R.id.addButton).setEnabled(true);
-                findViewById(R.id.reloadButton).setEnabled(true);
                 checkForEmpty();
             }
         }
