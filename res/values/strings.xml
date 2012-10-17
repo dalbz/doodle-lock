@@ -21,7 +21,7 @@
     <!-- General -->
     <skip />
     <!-- Application name -->
-    <string name="application_name">Gestures Builder</string>
+    <string name="application_name">Doodle Lock</string>
     <!-- Title, name of the activity used to create a gesture -->
     <string name="label_create_gesture">Create a gesture</string>
 
