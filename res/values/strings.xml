@@ -28,7 +28,7 @@
     <!-- Buttons -->
     <skip />
     <!-- Label, button used to add a gesture -->
-    <string name="button_add">Add gesture</string>
+    <string name="button_add">Add User</string>
     <!-- Label, button used to reload all gestures -->
     <string name="button_reload">Reload</string>
     <!-- Label, button used to cancel the operation of adding a gesture -->
@@ -49,7 +49,7 @@
     <!-- Buttons in Rename gesture dialog box -->
     <string name="cancel_action">Cancel</string>
     <!-- Message displayed when the user opens the gestures settings screen -->
-    <string name="gestures_loading">Loading gestures...</string>
+    <string name="gestures_loading">Loading gestures&#8230;</string>
     <!-- Message displayed when the user has no gestures -->
     <string name="gestures_empty">No gestures</string>
     <!-- Title of the screen used to view/manage gestures -->
