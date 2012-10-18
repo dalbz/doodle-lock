@@ -23,7 +23,7 @@
     <!-- Application name -->
     <string name="application_name">Doodle Lock</string>
     <!-- Title, name of the activity used to create a gesture -->
-    <string name="label_create_gesture">Create a gesture</string>
+    <string name="label_create_gesture">Doodle Training</string>
 
     <!-- Buttons -->
     <skip />
@@ -49,21 +49,21 @@
     <!-- Buttons in Rename gesture dialog box -->
     <string name="cancel_action">Cancel</string>
     <!-- Message displayed when the user opens the gestures settings screen -->
-    <string name="gestures_loading">Loading gestures&#8230;</string>
+    <string name="gestures_loading">Loading users&#8230;</string>
     <!-- Message displayed when the user has no gestures -->
-    <string name="gestures_empty">No gestures</string>
+    <string name="gestures_empty">No users</string>
     <!-- Title of the screen used to view/manage gestures -->
-    <string name="gestures_activity">Gestures</string>
+    <string name="gestures_activity">Doodles</string>
     <!-- Noun, menu item used to rename a gesture -->
     <string name="gestures_rename">Rename</string>
     <!-- Noun, menu item used to remove a gesture -->
     <string name="gestures_delete">Delete</string>
     <!-- Message displayed when a gesture is successfully deleted -->
-    <string name="gestures_delete_success">Gesture deleted</string>
+    <string name="gestures_delete_success">Doodle deleted</string>
     <!-- Title of dialog box -->
-    <string name="gestures_rename_title">Rename gesture</string>
+    <string name="gestures_rename_title">Rename doodle</string>
     <!-- Label of gesture name field in Rename gesture dialog box -->
-    <string name="gestures_rename_label">Gesture name</string>
+    <string name="gestures_rename_label">Doodle name</string>
     <!-- Message, displayed when the sdcard cannot be found, 1st parameter is the name of the file that stores the gestures.  CHAR LIMIT=80 -->
     <string name="gestures_error_loading">Could not load %s. Make sure you have storage available.</string>
 </resources>
