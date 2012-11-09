@@ -109,12 +109,12 @@ public class GestureBuilderActivity extends ListActivity {
         return sStore;
     }
 
-    @SuppressWarnings({"UnusedDeclaration"})
+    @SuppressWarnings({})
     public void reloadGestures(View v) {
         loadGestures();
     }
     
-    @SuppressWarnings({"UnusedDeclaration"})
+    @SuppressWarnings({})
     public void addGesture(View v) {
         Intent intent = new Intent(this, CreateDoodleActivity.class);
         startActivityForResult(intent, REQUEST_NEW_GESTURE);

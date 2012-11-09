@@ -76,7 +76,7 @@ public class CreateDoodleActivity extends Activity {
         }
     }
 
-    @SuppressWarnings({"UnusedDeclaration"})
+    @SuppressWarnings({})
     public void addGesture(View v) {
         if (mGesture != null) {
             final TextView input = (TextView) findViewById(R.id.gesture_name);
@@ -103,7 +103,7 @@ public class CreateDoodleActivity extends Activity {
         
     }
     
-    @SuppressWarnings({"UnusedDeclaration"})
+    @SuppressWarnings({})
     public void cancelGesture(View v) {
         setResult(RESULT_CANCELED);
         finish();
