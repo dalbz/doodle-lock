@@ -94,13 +94,21 @@ public class Doodle {
 		
 		// calculate the confidence product over each dimension
 		double confidence = 1.0;
+		// keep track of how many approximately strokes there are
+		int count = 0;
+		
 		for(int i = 0; i < REP_SIZE; i++){
 			// check to see if the variance is 0 so no divide by zero issues
 			if(variances[i] != 0){
 				confidences[i] = gauss(gestureRep[i], means[i], variances[i]);
 				confidence *= confidences[i];
+				count++;
 			}
 		}
+		
+		// multiply the confidence by the number of values used so that the 
+		// confidence is not as biased against patterns with many strokes
+		confidence *= count;
 		
 		// return true if the confidence is above the defined threshold
 		return (confidence >= THRESHOLD);
