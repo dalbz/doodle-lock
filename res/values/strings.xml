@@ -29,6 +29,8 @@
     <skip />
     <!-- Label, button used to add a gesture -->
     <string name="button_add">Add User</string>
+    <!-- Label, button used to test stored gestures -->
+    <string name="button_calc">Calculate Gesture Values</string>
     <!-- Label, button used to reload all gestures -->
     <string name="button_reload">Reload</string>
     <!-- Label, button used to cancel the operation of adding a gesture -->

@@ -22,6 +22,7 @@ import android.app.ListActivity;
 import android.os.Bundle;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 import android.view.ContextMenu;
 import android.view.MenuItem;
@@ -30,6 +31,7 @@ import android.view.ViewGroup;
 import android.gesture.GestureLibrary;
 import android.gesture.Gesture;
 import android.gesture.GestureLibraries;
+import android.gesture.GestureStroke;
 import android.widget.TextView;
 import android.widget.EditText;
 import android.widget.AdapterView;
@@ -44,11 +46,13 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.BitmapDrawable;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Comparator;
 import java.util.Set;
+import java.io.Console;
 import java.io.File;
 
 import edu.osu.cse.doodleLock.R;
@@ -118,6 +122,57 @@ public class GestureBuilderActivity extends ListActivity {
     public void addGesture(View v) {
         Intent intent = new Intent(this, CreateDoodleActivity.class);
         startActivityForResult(intent, REQUEST_NEW_GESTURE);
+    }
+    
+    @SuppressWarnings({"UnusedDeclaration"})
+    public void calcGesture(View v) {
+    	
+    	// Pull all of the gestures into a more usable list 
+    	ArrayList<ArrayList<Gesture>> gestureList = new ArrayList<ArrayList<Gesture>>();
+    	ArrayList<String> gestureNames = new ArrayList<String>();
+    	gestureNames.addAll(sStore.getGestureEntries());
+    	
+    	for(String name : gestureNames){
+    		gestureList.add(sStore.getGestures(name));
+    	}
+    	
+    	// For each gesture in the list, convert to vector format
+    	ArrayList<double[]> numericalRep = new ArrayList<double[]>();
+    	
+    	for(ArrayList<Gesture> gestureRep : gestureList){
+    		
+    		double[] gestureValues = new double[72];
+    		
+    		ArrayList<GestureStroke> strokes = gestureRep.get(0).getStrokes();
+    		
+    		for(int i = 0; i < 12; i++){
+    			
+    			if(i < strokes.size()){
+    				GestureStroke currentStroke = strokes.get(i);
+    				// 0 - Stroke Length
+    				gestureValues[6*i + 0] = currentStroke.length; 
+    				// 1 - Stroke start point
+    				gestureValues[6*i + 1] = currentStroke.points[0];
+    				// 2 - Stroke end point
+    				gestureValues[6*i + 2] = currentStroke.points[currentStroke.points.length - 1];
+    				// 3 - Stroke width
+    				gestureValues[6*i + 3] = currentStroke.boundingBox.width();
+    				// 4 - Stroke height
+    				gestureValues[6*i + 4] = currentStroke.boundingBox.height();
+    			}
+    			else {
+    				for(int j = 0; j < 6; j++){
+    					gestureValues[6*i + j] = 0.0;   
+    				}				
+    			}
+    			
+    			
+    		}
+    	}
+    	
+        Log.i("INFO", "Num gestures: " + sStore.getGestureEntries().size());
+    	// Intent intent = new Intent(this, CreateDoodleActivity.class);
+        // startActivityForResult(intent, REQUEST_NEW_GESTURE);
     }
 
     @Override
@@ -332,6 +387,7 @@ out:        for (String name : entries) {
             mThumbnailSize = (int) resources.getDimension(R.dimen.gesture_thumbnail_size);
 
             findViewById(R.id.addButton).setEnabled(false);
+            findViewById(R.id.calcButton).setEnabled(true);
             
             mAdapter.setNotifyOnChange(false);            
             mAdapter.clear();
