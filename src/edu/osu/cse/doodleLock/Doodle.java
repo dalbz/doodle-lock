@@ -29,7 +29,7 @@ public class Doodle {
 	 * The confidence threshold at which to pass/fail auth
 	 * Double between 0.0 and 1.0
 	 */
-	final double THRESHOLD = 0.5;
+	final double THRESHOLD = 0.001;
 	
 	/**
 	 * The mean of each dimension in numericalRep
@@ -90,10 +90,16 @@ public class Doodle {
 		// convert the input gesture into our numerical representation
 		double[] gestureRep = gestureToArray(testGesture);
 		
+		double[] confidences = new double[REP_SIZE];
+		
 		// calculate the confidence product over each dimension
 		double confidence = 1.0;
 		for(int i = 0; i < REP_SIZE; i++){
-			confidence *= gauss(gestureRep[i], means[i], variances[i]);
+			// check to see if the variance is 0 so no divide by zero issues
+			if(variances[i] != 0){
+				confidences[i] = gauss(gestureRep[i], means[i], variances[i]);
+				confidence *= confidences[i];
+			}
 		}
 		
 		// return true if the confidence is above the defined threshold
