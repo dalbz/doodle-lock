@@ -1,3 +1,3 @@
 # DoodleLock
 
-The darn doodliest of all the locks.
+DoodleLock is a proof-of-concept Android application for using small "doodles" to authenticate a user. 
