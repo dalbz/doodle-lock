@@ -26,6 +26,12 @@ public class Doodle {
 	ArrayList<double[]> numericalRep = new ArrayList<double[]>();
 	
 	/**
+	 * The confidence threshold at which to pass/fail auth
+	 * Double between 0.0 and 1.0
+	 */
+	final double THRESHOLD = 0.5;
+	
+	/**
 	 * The mean of each dimension in numericalRep
 	 */
 	double[] means = new double[REP_SIZE];
@@ -80,7 +86,18 @@ public class Doodle {
 	 * @return True if gesture is acceptable 
 	 */
 	public boolean authenticate(Gesture testGesture){
-		return false;
+		
+		// convert the input gesture into our numerical representation
+		double[] gestureRep = gestureToArray(testGesture);
+		
+		// calculate the confidence product over each dimension
+		double confidence = 1.0;
+		for(int i = 0; i < REP_SIZE; i++){
+			confidence *= gauss(gestureRep[i], means[i], variances[i]);
+		}
+		
+		// return true if the confidence is above the defined threshold
+		return (confidence >= THRESHOLD);
 	}
 	
 	/**
@@ -140,5 +157,18 @@ public class Doodle {
 		}
 		
 		return gestureValues;
+	}
+	
+	/**
+	 * Returns the value of the Gaussian function with the following parameters
+	 * Note: a = 1 
+	 * 
+	 * @param x Input to the function
+	 * @param mean Center of the function
+	 * @param variance Constant parameter
+	 * @return Value between 0.0 and 1.0
+	 */
+	private double gauss(double x, double mean, double variance){
+		return Math.exp(-(x - mean)*(x - mean) / (2*variance));
 	}
 }

@@ -139,6 +139,8 @@ public class GestureBuilderActivity extends ListActivity {
     	
     	Doodle currentDoodle = new Doodle(gestureList);
     	
+    	boolean testResult = currentDoodle.authenticate(gestureList.get(0));
+    	
         Log.i("INFO", "Num gestures: " + sStore.getGestureEntries().size());
     	// Intent intent = new Intent(this, CreateDoodleActivity.class);
         // startActivityForResult(intent, REQUEST_NEW_GESTURE);
