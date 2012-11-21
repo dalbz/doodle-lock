@@ -54,6 +54,7 @@ import java.util.Comparator;
 import java.util.Set;
 import java.io.Console;
 import java.io.File;
+import java.lang.reflect.Field;
 
 import edu.osu.cse.doodleLock.R;
 
@@ -159,15 +160,36 @@ public class GestureBuilderActivity extends ListActivity {
     				gestureValues[6*i + 3] = currentStroke.boundingBox.width();
     				// 4 - Stroke height
     				gestureValues[6*i + 4] = currentStroke.boundingBox.height();
+    				
+    				// Disclaimer: The code below is really bad practice and should not reflect on 
+    				// 		my abilities as a programmer. - David
+    				long duration = 0;
+    				
+    				try {
+						Field f = currentStroke.getClass().getDeclaredField("timestamps");
+						f.setAccessible(true);
+						
+						long[] timestamps = (long[]) f.get(currentStroke);
+						duration = timestamps[timestamps.length - 1] - timestamps[0];
+					} catch (Exception e) {
+						// That's right, I am catching  any and all exceptions. I'm like a honey badger. 
+						// What are we gonna do about these exceptions? Nothing.
+						Log.e("ERROR", "Reflection didn't work");
+					}
+    				
+    				// 5 - Stroke Duration (time)
+    				gestureValues[6*i + 5] = duration;
+    			
     			}
     			else {
     				for(int j = 0; j < 6; j++){
     					gestureValues[6*i + j] = 0.0;   
     				}				
-    			}
-    			
+    			}    			
     			
     		}
+    		
+    		numericalRep.add(gestureValues);
     	}
     	
         Log.i("INFO", "Num gestures: " + sStore.getGestureEntries().size());
