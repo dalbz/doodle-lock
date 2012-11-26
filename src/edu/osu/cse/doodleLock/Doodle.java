@@ -9,9 +9,9 @@ import android.util.Log;
 
 /**
  * Representation of a "doodle" - a gesture used for authentication
- * 
+ *
  * @author David
- * 
+ *
  */
 public class Doodle {
 
@@ -44,7 +44,7 @@ public class Doodle {
 
     /**
      * Constructs a new doodle from a list of gestures
-     * 
+     *
      * @param gestureList
      *            Training gestures for doodle
      */
@@ -84,7 +84,7 @@ public class Doodle {
     /**
      * Function used to validate whether or not a user's gesture matches the
      * training values that they had previously stored
-     * 
+     *
      * @param testGesture
      *            Gesture used to authenticate
      * @return True if gesture is acceptable
@@ -107,7 +107,12 @@ public class Doodle {
                 confidences[i] = gauss(gestureRep[i], means[i], variances[i]);
                 confidence *= confidences[i];
                 count++;
+            } else if (gestureRep[i] != 0) {
+                // if the variance is 0, and the user has data, they exceeded
+                // the allowed number of strokes
+                return false;
             }
+
         }
 
         // multiply the confidence by the number of values used so that the
@@ -120,7 +125,7 @@ public class Doodle {
 
     /**
      * Converts a gesture object to an arbitrary numerical representation
-     * 
+     *
      * @param gesture
      *            The gesture to convert
      * @return REP_SIZE length array of doubles representing the gesture
@@ -184,7 +189,7 @@ public class Doodle {
     /**
      * Returns the value of the Gaussian function with the following parameters
      * Note: a = 1
-     * 
+     *
      * @param x
      *            Input to the function
      * @param mean
@@ -194,6 +199,6 @@ public class Doodle {
      * @return Value between 0.0 and 1.0
      */
     private double gauss(double x, double mean, double variance) {
-        return Math.exp(-(x - mean) * (x - mean) / (2 * variance));
+        return Math.exp(-(x - mean) * (x - mean) / (8 * variance));
     }
 }

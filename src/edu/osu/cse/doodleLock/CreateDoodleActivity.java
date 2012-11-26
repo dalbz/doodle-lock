@@ -33,7 +33,7 @@ import android.widget.Toast;
 public class CreateDoodleActivity extends Activity
 {
     private static final int TRAINING_SESSION_COUNT_MAX = 10;
-    private static final int TRAINING_SESSION_COUNT_MIN = 3;
+    private static final int TRAINING_SESSION_COUNT_MIN = 5;
     private static final float LENGTH_THRESHOLD = 120.0f;
 
     protected Gesture mGesture;
@@ -62,7 +62,7 @@ public class CreateDoodleActivity extends Activity
      * The view on which to draw gestures
      */
     protected GestureOverlayView mGestureOverlay;
-    
+
     /**
      * The doodle that is being used to authenticate the user and verify the training gestures
      */
@@ -80,15 +80,15 @@ public class CreateDoodleActivity extends Activity
         mDiscardDoodleButton = findViewById(R.id.discardDoodle);
         mSaveDoodleButton = findViewById(R.id.saveDoodle);
         mGestureOverlay = (GestureOverlayView) findViewById(R.id.gestures_overlay);
-        
+
         // Disable the Finish button until the min number of doodles have been trained
         mFinishSessionButton.setEnabled(false);
         mDiscardDoodleButton.setEnabled(false);
         mSaveDoodleButton.setEnabled(false);
-        
+
         // Set the doodle as null for the first gesture
         mDoodle = null;
-        
+
         mGestureOverlay.addOnGestureListener(new GesturesProcessor());
 
         mSavedGestureList = new ArrayList<Gesture>();
@@ -132,7 +132,7 @@ public class CreateDoodleActivity extends Activity
         {
             mSaveDoodleButton.setEnabled(false);
             mDiscardDoodleButton.setEnabled(false);
-            
+
             final TextView input = (TextView) findViewById(R.id.gesture_name);
             final CharSequence name = input.getText();
             if (name.length() == 0)
@@ -146,10 +146,10 @@ public class CreateDoodleActivity extends Activity
             setResult(RESULT_OK);
 
             final String path = new File(Environment.getExternalStorageDirectory(), "gestures").getAbsolutePath();
-            
+
             boolean haveMinDoodlesBeenDrawn = mSavedGestureList.size() >= TRAINING_SESSION_COUNT_MIN;
             boolean haveMaxDoodlesBeenDrawn = mSavedGestureList.size() >= TRAINING_SESSION_COUNT_MAX;
-            
+
             // If the max number of sessions has not been met
             if (!haveMaxDoodlesBeenDrawn)
             {
@@ -168,19 +168,20 @@ public class CreateDoodleActivity extends Activity
                     // If the doodle matches the training set
                     if (mDoodle.authenticate(mGesture))
                     {
-                        mSavedGestureList.add(mGesture);
-                        mDoodle = new Doodle(mSavedGestureList);   
-                        store.addGesture(name.toString().concat("" + mSavedGestureList.size()), mGesture);
-                        store.save();
+                        // mSavedGestureList.add(mGesture);
+                        mDoodle = new Doodle(mSavedGestureList);
+                        // store.addGesture(name.toString().concat("" +
+                        // mSavedGestureList.size()), mGesture);
+                        // store.save();
                         Toast.makeText(this, getString(R.string.save_success, path), Toast.LENGTH_SHORT).show();
                     }
                     // Doodle failed to authenticate
                     else
                     {
                         // Alert the user to try again
-                        Toast.makeText(this, getString(R.string.invalid_gesture, path), Toast.LENGTH_LONG).show();                        
+                        Toast.makeText(this, getString(R.string.invalid_gesture, path), Toast.LENGTH_LONG).show();
                     }
-                }                
+                }
             }
             // If the min number of session has been met
             if (mSavedGestureList.size() >= TRAINING_SESSION_COUNT_MIN)
@@ -194,7 +195,7 @@ public class CreateDoodleActivity extends Activity
             setResult(RESULT_CANCELED);
         }
     }
-    
+
     @SuppressWarnings({ "UnusedDeclaration" })
     public void onDiscardButtonPress(View v)
     {
