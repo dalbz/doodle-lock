@@ -36,7 +36,7 @@
     <!-- Label, button used to cancel the operation of adding a gesture -->
     <string name="button_discard">Discard</string>
     <!-- Label, button used to save a gesture newly created -->
-    <string name="button_done">Done</string>
+    <string name="button_finish">Finish</string>
     
     <!-- Gestures -->
     <skip />
@@ -45,7 +45,7 @@
     <!-- Error message, informs the user he needs to enter a name before saving a gesture -->
     <string name="error_missing_name">You must enter a name</string>
     <!-- success message, tells the user where the gesture was saved -->
-    <string name="save_success">Gesture saved in %s</string>
+    <string name="save_success">Doodle was successful</string>
     <!-- Buttons in Rename gesture dialog box -->
     <string name="rename_action">OK</string>
     <!-- Buttons in Rename gesture dialog box -->
@@ -68,4 +68,6 @@
     <string name="gestures_rename_label">Doodle name</string>
     <!-- Message, displayed when the sdcard cannot be found, 1st parameter is the name of the file that stores the gestures.  CHAR LIMIT=80 -->
     <string name="gestures_error_loading">Could not load %s. Make sure you have storage available.</string>
+    <string name="button_save">Save</string>
+    <string name="invalid_gesture">Please redraw the doodle. Try to match previous attempts</string>
 </resources>
