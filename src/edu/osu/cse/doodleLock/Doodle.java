@@ -17,9 +17,9 @@ public class Doodle {
 
     /**
      * The maximum size of the representation of the doodle Must be a multiple
-     * of 6
+     * of 8
      */
-    final int REP_SIZE = 72;
+    final int REP_SIZE = 96;
 
     /**
      * Contains numerical representation of training gestures for doodle
@@ -31,6 +31,12 @@ public class Doodle {
      * and 1.0
      */
     final double THRESHOLD = 0.001;
+
+    /**
+     * An integer representing how "loosely" the algorithm will accept Value
+     * should be between 1 and 10, 1 = strict, 10 = lenient
+     */
+    final int TOLERANCE = 5;
 
     /**
      * The mean of each dimension in numericalRep
@@ -136,21 +142,25 @@ public class Doodle {
 
         ArrayList<GestureStroke> strokes = gesture.getStrokes();
 
-        for (int i = 0; i < REP_SIZE / 6; i++) {
+        for (int i = 0; i < REP_SIZE / 8; i++) {
 
             if (i < strokes.size()) {
 
                 GestureStroke currentStroke = strokes.get(i);
                 // 0 - Stroke Length
-                gestureValues[6 * i + 0] = currentStroke.length;
-                // 1 - Stroke start point
-                gestureValues[6 * i + 1] = currentStroke.points[0];
-                // 2 - Stroke end point
-                gestureValues[6 * i + 2] = currentStroke.points[currentStroke.points.length - 1];
+                gestureValues[8 * i + 0] = currentStroke.length;
+                // 1 - Stroke start point - x
+                gestureValues[8 * i + 1] = currentStroke.points[0];
+                // 2 - Stroke start point - y
+                gestureValues[8 * i + 2] = currentStroke.points[1];
+                // 2 - Stroke end point - x
+                gestureValues[8 * i + 3] = currentStroke.points[currentStroke.points.length - 2];
+                // 2 - Stroke end point - y
+                gestureValues[8 * i + 4] = currentStroke.points[currentStroke.points.length - 1];
                 // 3 - Stroke width
-                gestureValues[6 * i + 3] = currentStroke.boundingBox.width();
+                gestureValues[8 * i + 5] = currentStroke.boundingBox.width();
                 // 4 - Stroke height
-                gestureValues[6 * i + 4] = currentStroke.boundingBox.height();
+                gestureValues[8 * i + 6] = currentStroke.boundingBox.height();
 
                 // Disclaimer: The code below is really bad practice and should
                 // not reflect on
@@ -173,11 +183,11 @@ public class Doodle {
                 }
 
                 // 5 - Stroke Duration (time)
-                gestureValues[6 * i + 5] = duration;
+                gestureValues[8 * i + 7] = duration;
 
             } else {
-                for (int j = 0; j < 6; j++) {
-                    gestureValues[6 * i + j] = 0.0;
+                for (int j = 0; j < 8; j++) {
+                    gestureValues[8 * i + j] = 0.0;
                 }
             }
 
@@ -199,6 +209,6 @@ public class Doodle {
      * @return Value between 0.0 and 1.0
      */
     private double gauss(double x, double mean, double variance) {
-        return Math.exp(-(x - mean) * (x - mean) / (8 * variance));
+        return Math.exp(-(x - mean) * (x - mean) / (TOLERANCE * 2 * variance));
     }
 }
