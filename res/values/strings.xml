@@ -18,6 +18,7 @@
 -->
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
     <!-- General -->
     <skip />
     <!-- Application name -->
@@ -37,7 +38,7 @@
     <string name="button_discard">Discard</string>
     <!-- Label, button used to save a gesture newly created -->
     <string name="button_finish">Finish</string>
-    
+
     <!-- Gestures -->
     <skip />
     <!-- Label, prompt asking the user to enter the name of the gesture -->
@@ -70,4 +71,12 @@
     <string name="gestures_error_loading">Could not load %s. Make sure you have storage available.</string>
     <string name="button_save">Save</string>
     <string name="invalid_gesture">Please redraw the doodle. Try to match previous attempts</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_user_options">user_opetions_activity</string>
+    <string name="retrain_user">Retrain User</string>
+    <string name="authenticate_user">Authenticate</string>
+    <string name="delete_user">Delete User</string>
+    <string name="user_options_dialog">Options</string>
+
 </resources>
