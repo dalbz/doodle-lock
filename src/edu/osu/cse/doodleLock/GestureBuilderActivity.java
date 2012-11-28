@@ -29,6 +29,7 @@ import android.app.Dialog;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.gesture.Gesture;
@@ -50,6 +51,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -63,6 +65,7 @@ public class GestureBuilderActivity extends ListActivity {
     private static final int MENU_ID_REMOVE = 2;
 
     private static final int DIALOG_RENAME_GESTURE = 1;
+    private static final int DIALOG_USER_OPTIONS = 2;
 
     private static final int REQUEST_NEW_GESTURE = 1;
 
@@ -176,6 +179,12 @@ public class GestureBuilderActivity extends ListActivity {
         }
 
         cleanupRenameDialog();
+        cleanupUserOptionsDialog();
+    }
+    
+    private void cleanupUserOptionsDialog()
+    {
+        // TODO Implement this funtion
     }
 
     private void checkForEmpty() {
@@ -212,6 +221,12 @@ public class GestureBuilderActivity extends ListActivity {
                 }
             }
         }
+    }
+    
+    @Override
+    protected void onListItemClick(ListView l, View v, int position, long id)
+    {
+        showDialog(DIALOG_USER_OPTIONS);
     }
 
     @Override
@@ -255,6 +270,9 @@ public class GestureBuilderActivity extends ListActivity {
     protected Dialog onCreateDialog(int id) {
         if (id == DIALOG_RENAME_GESTURE) {
             return createRenameDialog();
+        } 
+        else if (id == DIALOG_USER_OPTIONS) {
+            return createUserOptionsDialog();
         }
         return super.onCreateDialog(id);
     }
@@ -265,6 +283,53 @@ public class GestureBuilderActivity extends ListActivity {
         if (id == DIALOG_RENAME_GESTURE) {
             mInput.setText(mCurrentRenameGesture.name);
         }
+    }
+    
+    private Dialog createUserOptionsDialog()
+    {
+        //final View layout = View.inflate(this, R.layout.dialog_rename, null);
+//        mInput = (EditText) layout.findViewById(R.id.name);
+//        ((TextView) layout.findViewById(R.id.label))
+//                .setText(R.string.gestures_rename_label);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setIcon(0);
+        builder.setTitle(getString(R.string.user_options_dialog));
+        builder.setCancelable(true);
+        CharSequence[] options = new CharSequence[3];
+        options[0] = getString(R.string.authenticate_user);
+        options[1] = getString(R.string.retrain_user);
+        options[2] = getString(R.string.delete_user);
+        
+        builder.setItems(options, new OnClickListener() {
+            
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                // TODO Auto-generated method stub
+                System.out.println(which);
+            }
+        });
+        
+//        builder.setOnCancelListener(new Dialog.OnCancelListener() {
+//            public void onCancel(DialogInterface dialog) {
+//                cleanupRenameDialog();
+//            }
+//        });
+//        builder.setNegativeButton(getString(R.string.retrain_user),
+//                new Dialog.OnClickListener() {
+//                    public void onClick(DialogInterface dialog, int which) {
+//                        cleanupRenameDialog();
+//                    }
+//                });
+//        builder.setPositiveButton(getString(R.string.rename_action),
+//                new Dialog.OnClickListener() {
+//                    public void onClick(DialogInterface dialog, int which) {
+//                        changeGestureName();
+//                    }
+//                });
+        //builder.setView(layout);
+        return builder.create();
     }
 
     private Dialog createRenameDialog() {
@@ -363,7 +428,6 @@ public class GestureBuilderActivity extends ListActivity {
                     .getDimension(R.dimen.gesture_thumbnail_size);
 
             findViewById(R.id.addButton).setEnabled(false);
-            findViewById(R.id.calcButton).setEnabled(true);
 
             mAdapter.setNotifyOnChange(false);
             mAdapter.clear();
@@ -432,6 +496,11 @@ public class GestureBuilderActivity extends ListActivity {
                 checkForEmpty();
             }
         }
+    }
+    
+    public void onUserClick(View v)
+    {
+        
     }
 
     static class NamedGesture {
