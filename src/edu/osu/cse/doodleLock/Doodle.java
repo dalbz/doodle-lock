@@ -153,13 +153,13 @@ public class Doodle {
                 gestureValues[8 * i + 1] = currentStroke.points[0];
                 // 2 - Stroke start point - y
                 gestureValues[8 * i + 2] = currentStroke.points[1];
-                // 2 - Stroke end point - x
+                // 3 - Stroke end point - x
                 gestureValues[8 * i + 3] = currentStroke.points[currentStroke.points.length - 2];
-                // 2 - Stroke end point - y
+                // 4 - Stroke end point - y
                 gestureValues[8 * i + 4] = currentStroke.points[currentStroke.points.length - 1];
-                // 3 - Stroke width
+                // 5 - Stroke width
                 gestureValues[8 * i + 5] = currentStroke.boundingBox.width();
-                // 4 - Stroke height
+                // 6 - Stroke height
                 gestureValues[8 * i + 6] = currentStroke.boundingBox.height();
 
                 // Disclaimer: The code below is really bad practice and should
@@ -182,7 +182,7 @@ public class Doodle {
                     Log.e("ERROR", "Reflection didn't work");
                 }
 
-                // 5 - Stroke Duration (time)
+                // 7 - Stroke Duration (time)
                 gestureValues[8 * i + 7] = duration;
 
             } else {
