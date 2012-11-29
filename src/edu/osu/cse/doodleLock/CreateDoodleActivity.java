@@ -21,10 +21,12 @@ import java.util.ArrayList;
 
 import android.app.Activity;
 import android.gesture.Gesture;
+import android.gesture.GestureLibraries;
 import android.gesture.GestureLibrary;
 import android.gesture.GestureOverlayView;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
@@ -58,6 +60,8 @@ public class CreateDoodleActivity extends Activity
      */
     protected View mSaveDoodleButton;
 
+    protected View mAuthenticateButton;
+
     /**
      * The view on which to draw gestures
      */
@@ -67,6 +71,18 @@ public class CreateDoodleActivity extends Activity
      * The doodle that is being used to authenticate the user and verify the training gestures
      */
     protected Doodle mDoodle;
+
+    /**
+     * Name of the user passed in by the parent activity
+     */
+    protected String mUserName;
+    protected String mActivityType;
+
+    protected File mUserDir;
+    protected File mUserFile;
+
+    protected TextView mTrainingSessionName;
+    protected TextView mAuthenticationSessionName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -79,6 +95,10 @@ public class CreateDoodleActivity extends Activity
         mFinishSessionButton = findViewById(R.id.finishSession);
         mDiscardDoodleButton = findViewById(R.id.discardDoodle);
         mSaveDoodleButton = findViewById(R.id.saveDoodle);
+        mAuthenticateButton = findViewById(R.id.authenticateDoodle);
+
+        mTrainingSessionName = (TextView) findViewById(R.id.trainingSessionName);
+
         mGestureOverlay = (GestureOverlayView) findViewById(R.id.gestures_overlay);
 
         // Disable the Finish button until the min number of doodles have been trained
@@ -89,9 +109,54 @@ public class CreateDoodleActivity extends Activity
         // Set the doodle as null for the first gesture
         mDoodle = null;
 
+        // Get the user name passed with the intent
+        mUserName = (String) this.getIntent().getExtras().get(getString(R.string.user_name));
+        mActivityType = (String) this.getIntent().getExtras().get(getString(R.string.activity_type));
+
+        // Make a directory for the user
+        mUserDir = new File(Environment.getExternalStorageDirectory() + "/" + getString(R.string.root_dir) + "/" + mUserName + "/");
+        mUserFile = new File(mUserDir.getAbsolutePath() + mUserName);
+
+        if (mActivityType.equals(getString(R.string.train)))
+        {
+            mTrainingSessionName.setText(mUserName + "'s Training Session");
+            mUserDir.mkdirs();
+
+        }
+        else if (mActivityType.equals(getString(R.string.retrain)))
+        {
+            mTrainingSessionName.setText("Retrain " + mUserName + "'s Doodle");
+            deletePreviousSession();
+        }
+        else if (mActivityType.equals(getString(R.string.authenticate)))
+        {
+            setContentView(R.layout.authenticate_gesture);
+            mAuthenticationSessionName = (TextView) findViewById(R.id.authenticationSessionName);
+            mAuthenticationSessionName.setText("Authenticate with " + mUserName + "'s Doodle");
+            mGestureOverlay = (GestureOverlayView) findViewById(R.id.authenticate_overlay);
+            mAuthenticateButton = findViewById(R.id.authenticateDoodle);
+            mAuthenticateButton.setEnabled(false);
+        }
+        else
+        {
+            Log.d(CreateDoodleActivity.class.getName().toString(), "ERROR: Invalid activity type");
+            return;
+        }
+
         mGestureOverlay.addOnGestureListener(new GesturesProcessor());
 
         mSavedGestureList = new ArrayList<Gesture>();
+    }
+
+    /**
+     * Delete the files in the user's directory
+     */
+    private void deletePreviousSession()
+    {
+        for (File file : mUserDir.listFiles())
+        {
+            file.delete();
+        }
     }
 
     @Override
@@ -125,21 +190,40 @@ public class CreateDoodleActivity extends Activity
         }
     }
 
-    @SuppressWarnings({ "UnusedDeclaration" })
+    public void onAuthenticateButtonPress(View v)
+    {
+        GestureLibrary userStore = GestureLibraries.fromFile(mUserFile);
+        userStore.load();
+
+        ArrayList<Gesture> gesturesFromFile = new ArrayList<Gesture>();
+        for (String entry : userStore.getGestureEntries())
+        {
+            gesturesFromFile.addAll(userStore.getGestures(entry));
+        }
+
+        Doodle prediction = new Doodle(gesturesFromFile);
+
+        if (prediction.authenticate(mGesture))
+        {
+            Toast.makeText(this, "Success", Toast.LENGTH_SHORT).show();
+            mGestureOverlay.clear(false);
+            mAuthenticateButton.setEnabled(false);
+        }
+        else
+        {
+            Toast.makeText(this, "Incorrect. Please try again.", Toast.LENGTH_SHORT).show();
+            mGestureOverlay.clear(false);
+            mAuthenticateButton.setEnabled(false);
+        }
+
+    }
+
     public void onSaveButtonPress(View v)
     {
         if (mGesture != null)
         {
             mSaveDoodleButton.setEnabled(false);
             mDiscardDoodleButton.setEnabled(false);
-
-            final TextView input = (TextView) findViewById(R.id.gesture_name);
-            final CharSequence name = input.getText();
-            if (name.length() == 0)
-            {
-                input.setError(getString(R.string.error_missing_name));
-                return;
-            }
 
             final GestureLibrary store = GestureBuilderActivity.getStore();
 
@@ -158,9 +242,8 @@ public class CreateDoodleActivity extends Activity
                 {
                     mSavedGestureList.add(mGesture);
                     mDoodle = new Doodle(mSavedGestureList);
-                    store.addGesture(name.toString().concat("" + mSavedGestureList.size()), mGesture);
                     store.save();
-                    Toast.makeText(this, getString(R.string.save_success, path), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, getString(R.string.save_success), Toast.LENGTH_SHORT).show();
                 }
                 // Authenticate subsequent doodles
                 else if (haveMinDoodlesBeenDrawn)
@@ -173,13 +256,13 @@ public class CreateDoodleActivity extends Activity
                         // store.addGesture(name.toString().concat("" +
                         // mSavedGestureList.size()), mGesture);
                         // store.save();
-                        Toast.makeText(this, getString(R.string.save_success, path), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, getString(R.string.save_success), Toast.LENGTH_SHORT).show();
                     }
                     // Doodle failed to authenticate
                     else
                     {
                         // Alert the user to try again
-                        Toast.makeText(this, getString(R.string.invalid_gesture, path), Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, getString(R.string.invalid_gesture), Toast.LENGTH_LONG).show();
                     }
                 }
             }
@@ -196,16 +279,23 @@ public class CreateDoodleActivity extends Activity
         }
     }
 
-    @SuppressWarnings({ "UnusedDeclaration" })
     public void onDiscardButtonPress(View v)
     {
         setResult(RESULT_CANCELED);
-        mGestureOverlay.clear(false);
+        mGestureOverlay.clear(true);
     }
 
     public void onFinishSessionButtonPress(View v)
     {
-        //TODO What to do with the Doodle that has been created?
+        GestureLibrary userStore = GestureLibraries.fromFile(mUserFile);
+
+        for (Gesture gesture : mSavedGestureList)
+        {
+            userStore.addGesture(gesture.toString(), gesture);
+        }
+
+        userStore.save();
+
         finish();
     }
 
@@ -234,6 +324,10 @@ public class CreateDoodleActivity extends Activity
             {
                 mSaveDoodleButton.setEnabled(true);
                 mDiscardDoodleButton.setEnabled(true);
+                if (mAuthenticateButton != null)
+                {
+                    mAuthenticateButton.setEnabled(true);
+                }
             }
 
         }
