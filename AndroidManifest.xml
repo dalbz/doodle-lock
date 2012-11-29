@@ -13,21 +13,21 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
- -->
- 
- <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+-->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="edu.osu.cse.doodleLock"
     android:versionName="0.1.0-SNAPSHOT" >
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <uses-sdk
-        android:minSdkVersion="10"
+        android:minSdkVersion="11"
         android:targetSdkVersion="15" />
 
     <application>
         <activity
-            android:name="GestureBuilderActivity"
+            android:name="edu.osu.cse.doodleLock.GestureBuilderActivity"
             android:icon="@drawable/ic_gesturebuilder"
             android:label="@string/application_name" >
             <intent-filter>
@@ -38,8 +38,16 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".CreateDoodleActivity"
+            android:name="edu.osu.cse.doodleLock.CreateDoodleActivity"
             android:label="@string/label_create_gesture" />
+        <activity
+            android:name="edu.osu.cse.doodleLock.UserOptionsActivity"
+            android:label="@string/title_activity_user_options"
+            android:parentActivityName="edu.osu.cse.doodleLock.GestureBuilderActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="edu.osu.cse.doodleLock.GestureBuilderActivity" />
+        </activity>
     </application>
 
 </manifest>
