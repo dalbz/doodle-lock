@@ -62,11 +62,11 @@
     <!-- Noun, menu item used to remove a gesture -->
     <string name="gestures_delete">Delete</string>
     <!-- Message displayed when a gesture is successfully deleted -->
-    <string name="gestures_delete_success">Doodle deleted</string>
+    <string name="gestures_delete_success">User was removed</string>
     <!-- Title of dialog box -->
-    <string name="gestures_rename_title">Rename doodle</string>
+    <string name="gestures_rename_title">Add New User</string>
     <!-- Label of gesture name field in Rename gesture dialog box -->
-    <string name="gestures_rename_label">Doodle name</string>
+    <string name="gestures_rename_label">User Name</string>
     <!-- Message, displayed when the sdcard cannot be found, 1st parameter is the name of the file that stores the gestures.  CHAR LIMIT=80 -->
     <string name="gestures_error_loading">Could not load %s. Make sure you have storage available.</string>
     <string name="button_save">Save</string>
@@ -78,5 +78,13 @@
     <string name="authenticate_user">Authenticate</string>
     <string name="delete_user">Delete User</string>
     <string name="user_options_dialog">Options</string>
+    <string name="user_name">user_name</string>
+    <string name="training_session_name">Training Session</string>
+    <string name="root_dir">doodle_users</string>
+    <string name="activity_type">activity_type</string>
+    <string name="train">train</string>
+    <string name="retrain">retrain</string>
+    <string name="authenticate">authenticate</string>
+    <string name="button_authenticate">Authenticate</string>
 
 </resources>

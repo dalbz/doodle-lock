@@ -26,20 +26,14 @@
         android:orientation="horizontal" >
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/trainingSessionName"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginRight="6dip"
-            android:text="@string/prompt_gesture_name"
+            android:clickable="false"
+            android:padding="@dimen/gesture_thumbnail_inset"
+            android:text="@string/training_session_name"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
-        <EditText
-            android:id="@+id/gesture_name"
-            android:layout_width="0dip"
-            android:layout_height="wrap_content"
-            android:layout_weight="1.0"
-            android:inputType="text"
-            android:maxLength="40"
-            android:singleLine="true" />
     </LinearLayout>
 
     <android.gesture.GestureOverlayView
@@ -47,6 +41,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dip"
         android:layout_weight="1.0"
+        android:fadeOffset="10000"
+        android:background="@color/gesture_overlay"
         android:gestureStrokeType="multiple" />
 
     <LinearLayout

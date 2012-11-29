@@ -19,4 +19,5 @@
 -->
 <resources>
     <color name="gesture_color">#FFFFFF00</color>
+    <color name="gesture_overlay">#353535</color>
 </resources>
