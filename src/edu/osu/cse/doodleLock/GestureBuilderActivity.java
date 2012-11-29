@@ -17,8 +17,8 @@
 package edu.osu.cse.doodleLock;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,14 +30,9 @@ import android.app.ListActivity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.gesture.Gesture;
 import android.gesture.GestureLibraries;
 import android.gesture.GestureLibrary;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.TextUtils;
@@ -54,6 +49,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class GestureBuilderActivity extends ListActivity {
+    private static final String TAG = "UserList";
     private static final int STATUS_SUCCESS = 0;
     private static final int STATUS_CANCELLED = 1;
     private static final int STATUS_NO_STORAGE = 2;
@@ -62,7 +58,7 @@ public class GestureBuilderActivity extends ListActivity {
     private static final int MENU_ID_RENAME = 1;
     private static final int MENU_ID_REMOVE = 2;
 
-    private static final int DIALOG_RENAME_GESTURE = 1;
+    private static final int DIALOG_ADD_USER = 1;
 
     private static final int REQUEST_NEW_GESTURE = 1;
 
@@ -71,22 +67,24 @@ public class GestureBuilderActivity extends ListActivity {
 
     private final File mStoreFile = new File(
             Environment.getExternalStorageDirectory(), "gestures");
+    private final File mStoreDir = new File(
+            Environment.getExternalStorageDirectory(), "doodlers");
 
-    private final Comparator<NamedGesture> mSorter = new Comparator<NamedGesture>() {
-        public int compare(NamedGesture object1, NamedGesture object2) {
-            return object1.name.compareTo(object2.name);
+    private final Comparator<? super String> mSorter = new Comparator<String>() {
+        public int compare(String user1, String user2) {
+            return user1.compareTo(user2);
         }
     };
 
     private static GestureLibrary sStore;
 
-    private GesturesAdapter mAdapter;
-    private GesturesLoadTask mTask;
+    private UsersAdapter mAdapter;
     private TextView mEmpty;
 
     private Dialog mRenameDialog;
     private EditText mInput;
-    private NamedGesture mCurrentRenameGesture;
+    private NamedGesture mCurrentUser;
+    private Map<String, File> users;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,14 +92,14 @@ public class GestureBuilderActivity extends ListActivity {
 
         this.setContentView(R.layout.users_list);
 
-        mAdapter = new GesturesAdapter(this);
+        mAdapter = new UsersAdapter(this);
         setListAdapter(mAdapter);
 
-        if (sStore == null) {
-            sStore = GestureLibraries.fromFile(mStoreFile);
-        }
+        mStoreDir.mkdirs();
         mEmpty = (TextView) findViewById(android.R.id.empty);
-        this.loadGestures();
+        this.loadUsers();
+        this.findViewById(R.id.addButton).setEnabled(true);
+        this.checkForEmpty();
 
         this.registerForContextMenu(getListView());
     }
@@ -111,12 +109,16 @@ public class GestureBuilderActivity extends ListActivity {
     }
 
     @SuppressWarnings({ "UnusedDeclaration" })
-    public void reloadGestures(View v) {
-        loadGestures();
+    public void reloadUsers(View v) {
+        loadUsers();
     }
 
     @SuppressWarnings({ "UnusedDeclaration" })
-    public void addGesture(View v) {
+    public void addUser(View v) {
+        showDialog(DIALOG_ADD_USER);
+    }
+
+    public void startTraining(View v) {
         Intent intent = new Intent(this, CreateDoodleActivity.class);
         startActivityForResult(intent, REQUEST_NEW_GESTURE);
     }
@@ -151,30 +153,32 @@ public class GestureBuilderActivity extends ListActivity {
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
             case REQUEST_NEW_GESTURE:
-                loadGestures();
+                loadUsers();
                 break;
             }
         }
     }
 
-    private void loadGestures() {
-        if (mTask != null
-                && mTask.getStatus() != GesturesLoadTask.Status.FINISHED) {
-            mTask.cancel(true);
+    private void loadUsers() {
+        users = new HashMap<String, File>();
+        UsersAdapter adapter = mAdapter;
+        adapter.clear();
+        adapter.setNotifyOnChange(false);
+
+        for (File gestureStore : mStoreDir.listFiles()) {
+            String username = gestureStore.getName();
+            Log.i(TAG, "Found user: " + username);
+            users.put(username, gestureStore);
+            adapter.add(username);
         }
-        mTask = (GesturesLoadTask) new GesturesLoadTask().execute();
+
+        adapter.sort(mSorter);
+        adapter.notifyDataSetChanged();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        if (mTask != null
-                && mTask.getStatus() != GesturesLoadTask.Status.FINISHED) {
-            mTask.cancel(true);
-            mTask = null;
-        }
-
         cleanupRenameDialog();
     }
 
@@ -188,9 +192,8 @@ public class GestureBuilderActivity extends ListActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        if (mCurrentRenameGesture != null) {
-            outState.putLong(GESTURES_INFO_ID,
-                    mCurrentRenameGesture.gesture.getID());
+        if (mCurrentUser != null) {
+            outState.putLong(GESTURES_INFO_ID, mCurrentUser.gesture.getID());
         }
     }
 
@@ -204,9 +207,9 @@ public class GestureBuilderActivity extends ListActivity {
             out: for (String name : entries) {
                 for (Gesture gesture : sStore.getGestures(name)) {
                     if (gesture.getID() == id) {
-                        mCurrentRenameGesture = new NamedGesture();
-                        mCurrentRenameGesture.name = name;
-                        mCurrentRenameGesture.gesture = gesture;
+                        mCurrentUser = new NamedGesture();
+                        mCurrentUser.name = name;
+                        mCurrentUser.gesture = gesture;
                         break out;
                     }
                 }
@@ -231,30 +234,22 @@ public class GestureBuilderActivity extends ListActivity {
     public boolean onContextItemSelected(MenuItem item) {
         final AdapterView.AdapterContextMenuInfo menuInfo = (AdapterView.AdapterContextMenuInfo) item
                 .getMenuInfo();
-        final NamedGesture gesture = (NamedGesture) menuInfo.targetView
-                .getTag();
+        final File userGestures = (File) menuInfo.targetView.getTag();
+        String userName = userGestures.getName();
 
         switch (item.getItemId()) {
-        case MENU_ID_RENAME:
-            renameGesture(gesture);
-            return true;
         case MENU_ID_REMOVE:
-            deleteGesture(gesture);
+            deleteUser(userName);
             return true;
         }
 
         return super.onContextItemSelected(item);
     }
 
-    private void renameGesture(NamedGesture gesture) {
-        mCurrentRenameGesture = gesture;
-        showDialog(DIALOG_RENAME_GESTURE);
-    }
-
     @Override
     protected Dialog onCreateDialog(int id) {
-        if (id == DIALOG_RENAME_GESTURE) {
-            return createRenameDialog();
+        if (id == DIALOG_ADD_USER) {
+            return createAddUserDialog();
         }
         return super.onCreateDialog(id);
     }
@@ -262,16 +257,15 @@ public class GestureBuilderActivity extends ListActivity {
     @Override
     protected void onPrepareDialog(int id, Dialog dialog) {
         super.onPrepareDialog(id, dialog);
-        if (id == DIALOG_RENAME_GESTURE) {
-            mInput.setText(mCurrentRenameGesture.name);
+        if (id == DIALOG_ADD_USER) {
         }
     }
 
-    private Dialog createRenameDialog() {
+    private Dialog createAddUserDialog() {
         final View layout = View.inflate(this, R.layout.dialog_rename, null);
         mInput = (EditText) layout.findViewById(R.id.name);
         ((TextView) layout.findViewById(R.id.label))
-                .setText(R.string.gestures_rename_label);
+        .setText(R.string.gestures_rename_label);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setIcon(0);
@@ -282,44 +276,41 @@ public class GestureBuilderActivity extends ListActivity {
                 cleanupRenameDialog();
             }
         });
-        builder.setNegativeButton(getString(R.string.cancel_action),
-                new Dialog.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        cleanupRenameDialog();
-                    }
-                });
-        builder.setPositiveButton(getString(R.string.rename_action),
-                new Dialog.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        changeGestureName();
-                    }
-                });
+        builder.setNegativeButton("Cancel", new Dialog.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                cleanupRenameDialog();
+            }
+        });
+        Log.i(TAG, "herp");
+        builder.setPositiveButton("Create User", new Dialog.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                setupUser();
+            }
+        });
         builder.setView(layout);
         return builder.create();
     }
 
-    private void changeGestureName() {
+    private void setupUser() {
         final String name = mInput.getText().toString();
         if (!TextUtils.isEmpty(name)) {
-            final NamedGesture renameGesture = mCurrentRenameGesture;
-            final GesturesAdapter adapter = mAdapter;
-            final int count = adapter.getCount();
-
-            // Simple linear search, there should not be enough items to warrant
-            // a more sophisticated search
-            for (int i = 0; i < count; i++) {
-                final NamedGesture gesture = adapter.getItem(i);
-                if (gesture.gesture.getID() == renameGesture.gesture.getID()) {
-                    sStore.removeGesture(gesture.name, gesture.gesture);
-                    gesture.name = mInput.getText().toString();
-                    sStore.addGesture(gesture.name, gesture.gesture);
-                    break;
+            if (name.contains(",")) {
+                Toast.makeText(getApplicationContext(),
+                        "Name cannnot contain commas.", Toast.LENGTH_SHORT)
+                        .show();
+            } else {
+                File userGestureStore = new File(mStoreDir.getPath(), name);
+                try {
+                    userGestureStore.createNewFile();
+                } catch (IOException e) {
                 }
+                GestureLibrary gLib = GestureLibraries
+                        .fromFile(userGestureStore);
+                gLib.save();
             }
-
-            adapter.notifyDataSetChanged();
         }
-        mCurrentRenameGesture = null;
+        loadUsers();
+        cleanupRenameDialog();
     }
 
     private void cleanupRenameDialog() {
@@ -327,16 +318,17 @@ public class GestureBuilderActivity extends ListActivity {
             mRenameDialog.dismiss();
             mRenameDialog = null;
         }
-        mCurrentRenameGesture = null;
+        mInput.setText("");
+        mCurrentUser = null;
     }
 
-    private void deleteGesture(NamedGesture gesture) {
-        sStore.removeGesture(gesture.name, gesture.gesture);
-        sStore.save();
+    private void deleteUser(String user) {
+        File gesturesFile = users.remove(user);
+        gesturesFile.delete();
 
-        final GesturesAdapter adapter = mAdapter;
+        final UsersAdapter adapter = mAdapter;
         adapter.setNotifyOnChange(false);
-        adapter.remove(gesture);
+        adapter.remove(user);
         adapter.sort(mSorter);
         checkForEmpty();
         adapter.notifyDataSetChanged();
@@ -345,113 +337,18 @@ public class GestureBuilderActivity extends ListActivity {
                 Toast.LENGTH_SHORT).show();
     }
 
-    private class GesturesLoadTask extends
-            AsyncTask<Void, NamedGesture, Integer> {
-        private int mThumbnailSize;
-        private int mThumbnailInset;
-        private int mPathColor;
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-            final Resources resources = getResources();
-            mPathColor = resources.getColor(R.color.gesture_color);
-            mThumbnailInset = (int) resources
-                    .getDimension(R.dimen.gesture_thumbnail_inset);
-            mThumbnailSize = (int) resources
-                    .getDimension(R.dimen.gesture_thumbnail_size);
-
-            findViewById(R.id.addButton).setEnabled(false);
-            findViewById(R.id.calcButton).setEnabled(true);
-
-            mAdapter.setNotifyOnChange(false);
-            mAdapter.clear();
-        }
-
-        @Override
-        protected Integer doInBackground(Void... params) {
-            if (isCancelled())
-                return STATUS_CANCELLED;
-            if (!Environment.MEDIA_MOUNTED.equals(Environment
-                    .getExternalStorageState())) {
-                return STATUS_NO_STORAGE;
-            }
-
-            final GestureLibrary store = sStore;
-
-            if (store.load()) {
-                for (String name : store.getGestureEntries()) {
-                    if (isCancelled())
-                        break;
-
-                    for (Gesture gesture : store.getGestures(name)) {
-                        final Bitmap bitmap = gesture.toBitmap(mThumbnailSize,
-                                mThumbnailSize, mThumbnailInset, mPathColor);
-                        final NamedGesture namedGesture = new NamedGesture();
-                        namedGesture.gesture = gesture;
-                        namedGesture.name = name;
-
-                        mAdapter.addBitmap(namedGesture.gesture.getID(), bitmap);
-                        publishProgress(namedGesture);
-                    }
-                }
-
-                return STATUS_SUCCESS;
-            }
-
-            return STATUS_NOT_LOADED;
-        }
-
-        @Override
-        protected void onProgressUpdate(NamedGesture... values) {
-            super.onProgressUpdate(values);
-
-            final GesturesAdapter adapter = mAdapter;
-            adapter.setNotifyOnChange(false);
-
-            for (NamedGesture gesture : values) {
-                adapter.add(gesture);
-            }
-
-            adapter.sort(mSorter);
-            adapter.notifyDataSetChanged();
-        }
-
-        @Override
-        protected void onPostExecute(Integer result) {
-            super.onPostExecute(result);
-
-            if (result == STATUS_NO_STORAGE) {
-                getListView().setVisibility(View.GONE);
-                mEmpty.setVisibility(View.VISIBLE);
-                mEmpty.setText(getString(R.string.gestures_error_loading,
-                        mStoreFile.getAbsolutePath()));
-            } else {
-                findViewById(R.id.addButton).setEnabled(true);
-                checkForEmpty();
-            }
-        }
-    }
-
     static class NamedGesture {
         String name;
         Gesture gesture;
     }
 
-    private class GesturesAdapter extends ArrayAdapter<NamedGesture> {
+    private class UsersAdapter extends ArrayAdapter<String> {
         private final LayoutInflater mInflater;
-        private final Map<Long, Drawable> mThumbnails = Collections
-                .synchronizedMap(new HashMap<Long, Drawable>());
 
-        public GesturesAdapter(Context context) {
+        public UsersAdapter(Context context) {
             super(context, 0);
             mInflater = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        }
-
-        void addBitmap(Long id, Bitmap bitmap) {
-            mThumbnails.put(id, new BitmapDrawable(bitmap));
         }
 
         @Override
@@ -461,13 +358,11 @@ public class GestureBuilderActivity extends ListActivity {
                         false);
             }
 
-            final NamedGesture gesture = getItem(position);
+            final String user = getItem(position);
             final TextView label = (TextView) convertView;
 
-            label.setTag(gesture);
-            label.setText(gesture.name);
-            label.setCompoundDrawablesWithIntrinsicBounds(
-                    mThumbnails.get(gesture.gesture.getID()), null, null, null);
+            label.setTag(users.get(user));
+            label.setText(user);
 
             return convertView;
         }
