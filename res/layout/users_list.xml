@@ -49,7 +49,7 @@
 
         <Button
             android:id="@+id/addButton"
-            android:onClick="addGesture"
+            android:onClick="addUser"
 
             android:layout_width="0dip"
             android:layout_height="wrap_content"
@@ -57,17 +57,6 @@
 
             android:enabled="false"
             android:text="@string/button_add" />
-        
-        <Button
-            android:id="@+id/calcButton"
-            android:onClick="calcGesture"
-
-            android:layout_width="0dip"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-
-            android:enabled="false"
-            android:text="@string/button_calc" />
 
     </LinearLayout>
 
