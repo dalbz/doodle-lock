@@ -282,7 +282,7 @@ public class CreateDoodleActivity extends Activity
     public void onDiscardButtonPress(View v)
     {
         setResult(RESULT_CANCELED);
-        mGestureOverlay.clear(true);
+        mGestureOverlay.clear(false);
     }
 
     public void onFinishSessionButtonPress(View v)
