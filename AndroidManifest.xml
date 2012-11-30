@@ -22,10 +22,10 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <uses-sdk
-        android:minSdkVersion="11"
-        android:targetSdkVersion="15" />
+        android:minSdkVersion="10"
+        android:targetSdkVersion="10" />
 
-    <application>
+    <application android:label="Doodle Lock">
         <activity
             android:name="edu.osu.cse.doodleLock.GestureBuilderActivity"
             android:icon="@drawable/ic_gesturebuilder"
@@ -42,8 +42,7 @@
             android:label="@string/label_create_gesture" />
         <activity
             android:name="edu.osu.cse.doodleLock.UserOptionsActivity"
-            android:label="@string/title_activity_user_options"
-            android:parentActivityName="edu.osu.cse.doodleLock.GestureBuilderActivity" >
+            android:label="@string/title_activity_user_options" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.osu.cse.doodleLock.GestureBuilderActivity" />
